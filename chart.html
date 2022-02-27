@@ -17,12 +17,14 @@
 <body class="bg-light">
      <!-- <input type="'text" id="input" placeholder="enter input"></input> -->
      <div>
-          <p class="g-signin2 d-none" data-onsuccess="queryReports"></p>
+          <p class="g-signin2" data-onsuccess="queryReports"></p>
      </div>
      <div class="container bg-white">
-          <div class="row p-4 shadow-sm">
-               <div style="overflow-x:scroll" class="chart-report col-md-12">
-                    <canvas id="myChart"></canvas>
+          <div class="d-none d-md-block row p-4 shadow-sm">
+               <div class=" col-md-12 chartWraper ">
+                    <div class="chart-report ">
+                         <canvas id="myChart"></canvas>
+                    </div>
                </div>
           </div>
           <div class="row bg-light py-4"></div>
@@ -320,7 +322,8 @@
                     type: 'bar',
                     data: data,
                     options: {
-
+                         // maintainAspectRatio: false,
+                         responsive: true,
                          scales: {
                               x: {
                                    stacked: true

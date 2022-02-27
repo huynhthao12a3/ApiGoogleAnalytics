@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+</head>
+
+<body>
+     <button onclick="callApi()">click me</button>
+     <button onclick="test()">Test</button>
+</body>
+<script>
+     /*
+ * Create form to request access token from Google's OAuth 2.0 server.
+ */
+     // function ajaxPost(url, data, successCallback, errorCallback = undefined) {
+
+     function ajaxPostFunction(url, data, successCallback, errorCallback = undefined) {
+
+          $.ajax({
+               headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+               },
+               type: 'POST',
+               url: url,
+               data: JSON.stringify(data),
+               dataType: 'json',
+               success: successCallback,
+               error: errorCallback
+          });
+     }
+
+     function ajaxGetFunction(url, data, successCallback, errorCallback = undefined) {
+
+          $.ajax({
+               headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+               },
+               type: 'GET',
+               url: url,
+               data: data,
+               dataType: 'json',
+               success: successCallback,
+               error: errorCallback
+          });
+     }
+
+     function callApi() {
+          let d = {
+               client_id: '910564561544-n76kbt2v5r8nt2krqi3deej7g79tk3dn.apps.googleusercontent.com',
+               client_secret: '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',
+               refresh_token: '1//0gYsFBnDW8AkVCgYIARAAGBASNwF-L9IrXWlEP--GYThM1ASfJEiC-BqKPnmN223AfQt0u9QV5h1AitbxCQFblGnE1e7y3yAgVMk',
+               grant_type: 'refresh_token',
+          }
+          ajaxPostFunction('https://accounts.google.com/o/oauth2/token', d, function (res) {
+               if (res.access_token) {
+                    localStorage.setItem('access_token', res.access_token);
+               } else {
+                    console.log(res.Message);
+               }
+          })
+     }
+     function test() {
+          // let url = 'https://www.googleapis.com/analytics/v3/data/ga'
+          // let accessToken = 'ya29.A0ARrdaM9gzkQrcm10jsI72aVybyhv1-zgl223unU0tG6Q4AXTTYAUM_6leUHQhNodgOqMEfCxF2sR_xanPiPiDBe7lJPUfNEMTfR2Ikrs94U5w99hqFjBYeDGVUgLV_UbZLhdB99oyt7ksIkHX55cxuBxpo6b'
+          // let viewID = 'ga:230262499'
+          // let metrics = 'ga:pageviews'
+          const data = {
+               access_token: localStorage.getItem('access_token'),
+               ids: 'ga:230262499',
+               dimensions: 'ga:deviceCategory',
+               metrics: 'ga:pageviews',
+               'start-date': '2022-02-16',
+               'end-date': `2022-02-22`,
+          }
+
+
+          ajaxGetFunction('https://www.googleapis.com/analytics/v3/data/ga', data, function (res) {
+               console.log(res)
+          })
+     }
+
+
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+</html>
