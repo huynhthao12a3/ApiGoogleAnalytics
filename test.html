@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+    <title>Hello Analytics Reporting API V4</title>
+    <meta name="google-signin-client_id" content="910564561544-n76kbt2v5r8nt2krqi3deej7g79tk3dn.apps.googleusercontent.com">
+    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/analytics.readonly">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+</head>
+
+<body class="bg-light">
+    <div class="text-center w-100 m-3">
+        <h2 class="text-center font-weight-bold font-20">Vui lòng đăng nhập tài khoản</h2>
+        <p class="g-signin2 d-inline-block" data-onsuccess="queryReports"></p>
+    </div>
+    <div class="container mt-4 bg-white">
+        <div class="d-none d-md-block row p-3 shadow">
+            <div class="col-md-12 chart-report ">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row bg-white shadow py-3 mt-4">
+            <div class="col-12 col-lg-6 border-right">
+                <div class="p-3">
+                    <p class="font-weight-bold">Thời gian thống kê</p>
+                    <div class="d-flex justify-content-between mb-3">
+                        <p class="m-0 p-0">Từ ngày : </p>
+                        <input type='date' class="start-date ml-3" />
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p class="m-0 p-0">Đến ngày : </p>
+                        <input type='date' class="end-date ml-3" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-12 col-lg-6 border-left">
+                <div class="p-3">
+                    <p class="font-weight-bold">Thống kê</p>
+                    <div class="form-group">
+                        <select id="slt-report" class="form-control float-right" data-toggle="select-no-search">
+                            <option value="ga:pageviews">Theo lượt xem trang</option>
+                            <option value="ga:sessions">Theo lượt truy cập</option>
+                            <option value="ga:users">Theo tất cả người dùng</option>
+                            <option value="ga:newUsers">Theo người dùng mới</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-block btn-primary" data-toggle="tooltip" data-placement="bottom" title="Mặc định 30 ngày gần nhất." onclick="queryReports()">Áp dụng</button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Hiển thị bảng -->
+        <div class="row shadow mt-4">
+            <div class="col-md-12 p-3">
+                <div class="table-responsive">
+                    <table id="btn-product" class="table table-hover table-centered">
+                        <thead id="tbl-head">
+                            <tr class="text-center">
+                                <th class="">NGÀY</th>
+                                <th class="">THÁNG</th>
+                                <th class="">NĂM</th>
+                                <th class="">PAGEVIEWS</th>
+                                <th class="">DESKTOP</th>
+                                <th class="">MOBILE</th>
+                                <th class="">TABLET</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <button onclick="authenticate().then(loadClient)">authorize and load</button>
+    <button onclick="execute()">execute</button>
+
+    <!-- Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Api google analytics -->
+    <script src="https://apis.google.com/js/client:platform.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <script>
+        function loadClient() {
+            gapi.client.setApiKey("AIzaSyBatcaRicOl7CQkLTrb-y310nZJ8ih9Ono");
+            // gapi.client.load('analytics', 'v3', makeRequest);
+            return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/analytics/v3/rest")
+                .then(function() {
+                    console.log("GAPI client loaded for API");
+                    gapi.client.request({
+                            path: '/v4/reports:batchGet',
+                            root: 'https://analyticsreporting.googleapis.com/',
+                            method: 'POST',
+                            body: {
+                                "reportRequests": [{
+                                    "viewId": "230262499",
+                                    "dateRanges": [{
+                                        "startDate": '7daysAgo',
+                                        "endDate": '2022-03-01',
+                                    }],
+                                    "metrics": [{
+                                        "expression": 'ga:pageviews',
+                                    }],
+                                    "dimensions": [
+
+                                        {
+                                            "name": 'ga:deviceCategory',
+                                        }
+                                    ],
+                                    "pivots": [{
+                                        "dimensions": [{
+                                            "name": 'ga:date',
+                                        }],
+                                        "metrics": [{
+                                            "expression": 'ga:pageviews',
+                                        }]
+                                    }],
+
+                                }]
+                            }
+                        },
+                        function(err) {
+                            console.error("Error loading GAPI client for API", err);
+                        }).then(displayResults, console.error.bind(console));
+                })
+        }
+
+        function displayResults(response) {
+            console.log(response)
+        }
+        // Make sure the client is loaded and sign-in is complete before calling this method.
+        function execute() {
+            return gapi.client.analytics.data.mcf.get({})
+                .then(function(response) {
+                        // Handle the results here (response.result has the parsed body).
+                        console.log("Response", response);
+                    },
+                    function(err) {
+                        console.error("Execute error", err);
+                    });
+        }
+        gapi.load("client:auth2", loadClient);
+    </script>
+
+</body>
+
+</html>
